@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<GridPane alignment="center" stylesheets="main_style.css" xmlns="http://javafx.com/javafx/8.0.121"
+          xmlns:fx="http://javafx.com/fxml/1">
+    <rowConstraints>
+        <RowConstraints percentHeight="20.0"/>
+        <RowConstraints percentHeight="19.0"/>
+        <RowConstraints percentHeight="19.0"/>
+        <RowConstraints percentHeight="19.0"/>
+        <RowConstraints percentHeight="19.0"/>
+        <RowConstraints percentHeight="19.0"/>
+        <RowConstraints percentHeight="5.0"/>
+    </rowConstraints>
+
+    <Text id="title" text="俄罗斯方块Online" GridPane.rowIndex="0"/>
+    <Button fx:id="start" text="单人游戏" GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
+    <Button fx:id="online" text="多人游戏" GridPane.halignment="CENTER" GridPane.rowIndex="2"/>
+    <Button fx:id="rank" text="排行榜" GridPane.halignment="CENTER" GridPane.rowIndex="3"/>
+    <Button fx:id="exit" text="更改账号" GridPane.halignment="CENTER" GridPane.rowIndex="4"/>
+    <Label fx:id="user" text="当前账号" GridPane.halignment="CENTER" GridPane.rowIndex="5"/>
+    <columnConstraints>
+        <ColumnConstraints/>
+    </columnConstraints>
+</GridPane>

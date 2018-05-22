@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<Pane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+      stylesheets="main_style.css">
+    <Canvas fx:id="canvas" height="800.0" width="400.0"/>
+    <GridPane alignment="CENTER" layoutX="75.0" layoutY="200.0"
+              prefHeight="400.0" prefWidth="250.0"
+              visible="false"
+              fx:id="endLayout"
+              style="-fx-background-radius: 10; -fx-background-color: #dddddd">
+        <rowConstraints>
+            <RowConstraints vgrow="SOMETIMES"/>
+            <RowConstraints vgrow="SOMETIMES"/>
+            <RowConstraints vgrow="SOMETIMES"/>
+            <RowConstraints vgrow="SOMETIMES"/>
+        </rowConstraints>
+        <columnConstraints>
+            <ColumnConstraints/>
+        </columnConstraints>
+        <Text text="游戏结束" GridPane.rowSpan="1"/>
+        <Text text="得分:300" fx:id="score" GridPane.rowSpan="2"/>
+        <Button text="上传分数" fx:id="updateScore" GridPane.rowSpan="3"/>
+        <Button text="返回菜单" fx:id="backToStart" GridPane.rowSpan="4"/>
+    </GridPane>
+</Pane>

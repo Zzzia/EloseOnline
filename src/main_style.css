@@ -1,0 +1,21 @@
+.button {
+    -fx-text-fill: #6f6f6f;
+    -fx-font-family: “Arial Narrow”;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(whitesmoke, white);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 5, 0.0, 0, 1);
+    -fx-pref-width: 100;
+    -fx-alignment: center;
+}
+
+.button:hover {
+    -fx-background-color: whitesmoke;
+}
+
+#title {
+    -fx-font-size: 32px;
+    -fx-font-family: “Arial Black”;
+    -fx-fill: #818181;
+    -fx-effect: innershadow(three-pass-box, rgba(0, 0, 0, 0.7), 6, 0.0, 0, 2);
+}
