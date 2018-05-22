@@ -12,4 +12,4 @@
 
 jar放在res目录下
 
-<img src='https://github.com/zzzia/elose/tree/master/img/1.png'>
+<img src='https://github.com/Zzzia/EloseOnline/blob/master/res/1.png'>
