@@ -17,7 +17,6 @@ import zia.shape.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
 
 public class Game {
 
@@ -28,9 +27,9 @@ public class Game {
     private List<Position> tempPositions = new ArrayList<>();
     private final int width = Config.width;
     private final int height = Config.height;
-    private Timer timer;
     private int score = 0;
-    private int time = 400;
+    private int upScore = 10;
+    private int time;
     private Canvas gameCanvas;
     private Stage stage;
     private EndListener endListener;
@@ -45,7 +44,7 @@ public class Game {
         this.isSingle = isSingle;
         stage = new Stage();
         stage.setTitle("elose");
-        if (!isSingle){
+        if (!isSingle) {
             Screen screen = Screen.getPrimary();
             Rectangle2D bounds = screen.getVisualBounds();
             double width = bounds.getMaxX();
@@ -63,7 +62,6 @@ public class Game {
         initShape();
         setKeyBoard();
         isEnd = false;
-        timer = new Timer();
         stage.show();
     }
 
@@ -80,7 +78,7 @@ public class Game {
     public void begin() {
         score = 0;
         time = 500;
-        autoDown();
+//        autoDown();
     }
 
     public void close() {
@@ -88,6 +86,14 @@ public class Game {
     }
 
     private void autoDown() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                time--;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
         new Thread(() -> {
             while (!isEnd) {
                 if (!shape.goDown()) {
@@ -99,7 +105,8 @@ public class Game {
                 }
                 invalidate();
                 try {
-                    Thread.sleep(time--);
+                    Thread.sleep(time);
+                    if (time <= 0) break;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -109,48 +116,54 @@ public class Game {
     }
 
     private void initShape() {
-        try {
-            create();
+        if (create()) {
             invalidate();
-        } catch (Exception e) {
-            isEnd = true;
-            timer.cancel();
-            clearKeyBoard();
-            if (!isSingle)
-                Client.getInstance().sendData("end");
-            if (endListener != null) {
-                Platform.runLater(() -> {
-                    endListener.onEnd(score);
-                });
-            }
+        } else {
+            gameOver();
         }
     }
 
-    private void create() throws Exception {
-        int k = Math.abs(new Random().nextInt()) % 7;
-        switch (k) {
-            case 0:
-                shape = new Line(map);
-                break;
-            case 1:
-                shape = new L1(map);
-                break;
-            case 2:
-                shape = new L2(map);
-                break;
-            case 3:
-                shape = new T(map);
-                break;
-            case 4:
-                shape = new Z1(map);
-                break;
-            case 5:
-                shape = new Z2(map);
-                break;
-            case 6:
-                shape = new TI(map);
-                break;
+    private void gameOver(){
+        isEnd = true;
+        clearKeyBoard();
+        if (!isSingle)
+            Client.getInstance().sendData("end");
+        if (endListener != null) {
+            Platform.runLater(() -> endListener.onEnd(score));
         }
+    }
+
+    private boolean create() {
+        int k = Math.abs(new Random().nextInt()) % 7;
+        try {
+            switch (k) {
+                case 0:
+                    shape = new Line(map);
+                    break;
+                case 1:
+                    shape = new L1(map);
+                    break;
+                case 2:
+                    shape = new L2(map);
+                    break;
+                case 3:
+                    shape = new T(map);
+                    break;
+                case 4:
+                    shape = new Z1(map);
+                    break;
+                case 5:
+                    shape = new Z2(map);
+                    break;
+                case 6:
+                    shape = new TI(map);
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -196,6 +209,7 @@ public class Game {
                 }
             }
         }
+        printMap(map);
         gc.fillText("得分：" + score, width - 100, 30);
         MapWarper mapWarper = new MapWarper();
         mapWarper.setScore(score);
@@ -220,29 +234,30 @@ public class Game {
 
     private void setKeyBoard() {
         gameScene.setOnKeyPressed(event -> {
-            switch (event.getText().toLowerCase()) {
-                case "a":
-                    shape.goLeft();
-                    break;
-                case "w":
-                    shape.change();
-                    break;
-                case "s":
-                    shape.goEnd();
-                    shape.getShape()
-                            .forEach(position -> map[position.getY()][position.getX()] = getColor(shape));
-                    for (Position p : tempPositions) {
-                        map[p.getY()][p.getX()] = Config.EMPTY;
-                    }
-                    tempPositions.clear();
-                    clearMap();
-                    initShape();
-                    break;
-                case "d":
-                    shape.goRight();
-                    break;
+            String key = event.getText().toLowerCase();
+            if (key.equals("a") || event.getCode().getName().equals("Left")) {
+                shape.goLeft();
+                invalidate();
+            } else if (key.equals("w") || event.getCode().getName().equals("Up")) {
+                shape.change();
+                invalidate();
+            } else if (key.equals("s") || event.getCode().getName().equals("Down")) {
+                if (shape.goEnd() <= 2){
+                    invalidate();
+                    gameOver();
+                    return;
+                }
+                for (Position p : tempPositions) {
+                    map[p.getY()][p.getX()] = Config.EMPTY;
+                }
+                tempPositions.clear();
+                shape.getShape()
+                        .forEach(position -> map[position.getY()][position.getX()] = getColor(shape));
+                clearMap();
+                initShape();
+            } else if (key.equals("d") || event.getCode().getName().equals("Right")) {
+                shape.goRight();
             }
-            invalidate();
         });
     }
 
@@ -280,7 +295,8 @@ public class Game {
         }
         for (int i = 0; i < Config.y; i++) {
             if (map[i][0] == Config.CLEAR) {
-                score = score + 10;
+                score = score + upScore;
+                upScore += 1;
                 for (int j = i; j > 0; j--) {
                     for (int k = 0; k < Config.x; k++) {
                         map[j][k] = map[j - 1][k];

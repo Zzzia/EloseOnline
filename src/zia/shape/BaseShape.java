@@ -41,35 +41,8 @@ public abstract class BaseShape {
     public void change() {
         //先变化，看是否有问题，有问题就-1
         mod = (mod + 1) % 4;
-        int minY = 100;
-        int maxY = -100;
-        int minX = 100;
-        int maxX = -100;
-        for (Position p : getShape()) {
-            if (p.getY() < minY)
-                minY = p.getY();
-            if (p.getY() > maxX)
-                maxY = p.getY();
-            if (p.getX() < minX)
-                minX = p.getX();
-            if (p.getX() > maxX)
-                maxX = p.getX();
-        }
-        //如果越界，返回之前的状态
-        if (minX <= 0 || maxX >= width || maxY >= height) {
-            mod = (mod - 1) % 4;
-        } else if (minY < 0) {
-            int tempY = Math.abs(minY) + y;
-            //如果被挡住或者到了最底下，返回之前的状态
-            if (isEnd(new Position(x, tempY))) {
-                mod = Math.abs(mod - 1) % 4;
-            } else {
-                y = tempY;
-            }
-        } else {
-            if (isEnd(getGravity())) {
-                mod = Math.abs(mod - 1) % 4;
-            }
+        if (isOut(getGravity())){
+            mod = Math.abs(mod - 1) % 4;
         }
         System.out.println("mod = " + mod);
     }
@@ -93,12 +66,12 @@ public abstract class BaseShape {
             x++;
     }
 
-    public boolean goEnd() {
-        while (true) {
-            if (!goDown())
-                break;
-        }
-        return false;
+    public int goEnd() {
+        int count = 0;
+         while (goDown()){
+             count++;
+         }
+        return count;
     }
 
     protected List<Position> getShape(Position position) {
