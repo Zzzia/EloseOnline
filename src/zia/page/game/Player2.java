@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import zia.bean.MapWarper;
 import zia.server.Client;
 import zia.server.MessageListener;
+import zia.util.UserRes;
 
 public class Player2 implements MessageListener {
 
@@ -117,7 +118,8 @@ public class Player2 implements MessageListener {
 
     @Override
     public void onQuit() {
-        Client.getInstance().quit();
+        if (endListener != null)
+            endListener.onEnd(score);
     }
 
     @Override
@@ -129,7 +131,9 @@ public class Player2 implements MessageListener {
     private boolean isEnd = false;
 
     @Override
-    public void onGameDataGet(String msg) {
+    public void onGameDataGet(String name, String msg) {
+        this.name = name;
+        if (name.equals(UserRes.instance.getUserData().getNickname())) return;
         if (msg.length() <= 1) return;
         System.out.println("onGameDataGet  " + msg);
         if (msg.equals("end")) {//他人游戏结束

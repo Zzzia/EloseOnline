@@ -14,5 +14,5 @@ public interface MessageListener {
 
     void onGameBegin();//开始游戏
 
-    void onGameDataGet(String msg);//接受游戏数据
+    void onGameDataGet(String name, String msg);//接受游戏数据
 }

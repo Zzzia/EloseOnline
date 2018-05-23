@@ -9,11 +9,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import zia.page.game.Player2;
 import zia.page.game.Game;
+import zia.page.game.Player2;
+import zia.page.score.ScoreUpdater;
 import zia.server.Client;
 import zia.server.MessageListener;
 import zia.util.UserRes;
+
+import java.io.IOException;
 
 /**
  * 创建房间
@@ -75,7 +78,6 @@ public class RoomPage implements MessageListener {
         this.name = name;
         begin.setOnAction(event -> {
             Client.getInstance().begin();
-            onGameBegin();
         });
     }
 
@@ -89,13 +91,13 @@ public class RoomPage implements MessageListener {
 
     }
 
-    private int endCount = 0;
+    private boolean selfEnd = false;
+    private boolean otherEnd = false;
 
     @Override
     public void onGameBegin() {
         System.out.println("onGameBegin");
         Platform.runLater(() -> {
-            endCount = 0;
             stage.hide();
 
             Player2 player2 = new Player2(name);
@@ -103,18 +105,23 @@ public class RoomPage implements MessageListener {
             game.begin();
             game.setEndListener(score -> {
                 Client.getInstance().sendData("end" + " " + score);
-                endCount++;
+                selfEnd = true;
+                try {
+                    new ScoreUpdater(score);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 close(game, player2);
             });
             player2.setEndListener(score -> {
-                endCount++;
+                otherEnd = true;
                 close(game, player2);
             });
         });
     }
 
     private void close(Game game, Player2 player2) {
-        if (endCount == 2) {
+        if (selfEnd && otherEnd) {
             Client.getInstance().quit();
             game.close();
             player2.close();
@@ -123,7 +130,7 @@ public class RoomPage implements MessageListener {
     }
 
     @Override
-    public void onGameDataGet(String msg) {
+    public void onGameDataGet(String name, String msg) {
 
     }
 }

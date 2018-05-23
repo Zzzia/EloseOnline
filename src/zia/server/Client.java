@@ -11,8 +11,9 @@ import java.net.Socket;
  */
 public class Client extends Socket {
 
-    private static final String SERVER_IP = "119.28.181.233"; // 服务端IP
-    private static final int SERVER_PORT = 9821; // 服务端端口
+        private static final String SERVER_IP = "zzzia.net"; // 服务端IP
+//    private static final String SERVER_IP = "localhost"; // 服务端IP
+    private static final int SERVER_PORT = 9233; // 服务端端口
     public static final String HEAD_INTRODUCE = "me";
     public static final String HEAD_CREATE = "cr";
     public static final String HEAD_JOIN = "jn";
@@ -152,7 +153,7 @@ public class Client extends Socket {
                                     } else if (split[0].equals(Client.HEAD_CREATE)) {//房间创建成功
                                         messageListener.onRoomCreated(Integer.parseInt(split[2]));
                                     } else if (split[0].equals(Client.HEAD_GAME)) {//接受游戏数据
-                                        messageListener.onGameDataGet(split[2]);
+                                        messageListener.onGameDataGet(split[1], split[2]);
                                     }
                                 } else {//其他玩家的消息
                                     if (split[0].equals(Client.HEAD_CREATE) && split[2].equals("join")) {//有人加入房间
@@ -160,7 +161,7 @@ public class Client extends Socket {
                                     } else if (split[0].equals(Client.HEAD_GAME) && split[2].equals("begin")) {//游戏开始
                                         messageListener.onGameBegin();
                                     } else if (split[0].equals(Client.HEAD_GAME)) {//游戏数据
-                                        messageListener.onGameDataGet(split[2]);
+                                        messageListener.onGameDataGet(split[1], split[2]);
                                     } else if (split[0].equals(Client.HEAD_QUIT)) {//退出游戏
                                         messageListener.onQuit();
                                     }

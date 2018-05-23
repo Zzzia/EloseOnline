@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import zia.bean.MapWarper;
 import zia.server.Client;
 import zia.shape.*;
+import zia.util.UserRes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class Game {
     private Canvas gameCanvas;
     private Stage stage;
     private EndListener endListener;
+    private String name = UserRes.instance.getUserData().getNickname();
 
     private Scene gameScene;
     private GraphicsContext gc;
@@ -45,6 +47,7 @@ public class Game {
         stage = new Stage();
         stage.setTitle("elose");
         if (!isSingle) {
+            stage.setTitle(UserRes.instance.getUserData().getNickname());
             Screen screen = Screen.getPrimary();
             Rectangle2D bounds = screen.getVisualBounds();
             double width = bounds.getMaxX();
@@ -69,8 +72,6 @@ public class Game {
         this.endListener = endListener;
         stage.setOnCloseRequest(event -> {
             isEnd = true;
-            if (!isSingle)
-                Client.getInstance().quit();
             endListener.onEnd(score);
         });
     }
@@ -78,7 +79,7 @@ public class Game {
     public void begin() {
         score = 0;
         time = 500;
-//        autoDown();
+        autoDown();
     }
 
     public void close() {
@@ -90,6 +91,7 @@ public class Game {
             try {
                 Thread.sleep(1000);
                 time--;
+                upScore++;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -123,7 +125,7 @@ public class Game {
         }
     }
 
-    private void gameOver(){
+    private void gameOver() {
         isEnd = true;
         clearKeyBoard();
         if (!isSingle)
@@ -209,8 +211,9 @@ public class Game {
                 }
             }
         }
-        printMap(map);
+//        printMap(map);
         gc.fillText("得分：" + score, width - 100, 30);
+        gc.fillText("玩家：" + name, 50, 30);
         MapWarper mapWarper = new MapWarper();
         mapWarper.setScore(score);
         mapWarper.setMap(map);
@@ -242,11 +245,7 @@ public class Game {
                 shape.change();
                 invalidate();
             } else if (key.equals("s") || event.getCode().getName().equals("Down")) {
-                if (shape.goEnd() <= 2){
-                    invalidate();
-                    gameOver();
-                    return;
-                }
+                shape.goEnd();
                 for (Position p : tempPositions) {
                     map[p.getY()][p.getX()] = Config.EMPTY;
                 }
@@ -257,6 +256,7 @@ public class Game {
                 initShape();
             } else if (key.equals("d") || event.getCode().getName().equals("Right")) {
                 shape.goRight();
+                invalidate();
             }
         });
     }
@@ -296,7 +296,6 @@ public class Game {
         for (int i = 0; i < Config.y; i++) {
             if (map[i][0] == Config.CLEAR) {
                 score = score + upScore;
-                upScore += 1;
                 for (int j = i; j > 0; j--) {
                     for (int k = 0; k < Config.x; k++) {
                         map[j][k] = map[j - 1][k];

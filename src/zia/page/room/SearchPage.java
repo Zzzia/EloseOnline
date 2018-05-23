@@ -87,7 +87,7 @@ public class SearchPage implements MessageListener {
     }
 
     @Override
-    public void onGameDataGet(String msg) {
+    public void onGameDataGet(String name, String msg) {
 
     }
 }
