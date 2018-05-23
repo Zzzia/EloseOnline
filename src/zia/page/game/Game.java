@@ -40,7 +40,11 @@ public class Game {
     private GraphicsContext gc;
     private double perSize;
 
+    private Thread gameThread;
+    private Thread countThread;
+
     private boolean isSingle;
+    private boolean isPause = false;
 
     public Game(boolean isSingle) {
         this.isSingle = isSingle;
@@ -87,7 +91,7 @@ public class Game {
     }
 
     private void autoDown() {
-        new Thread(() -> {
+        countThread = new Thread(() -> {
             while (!isEnd) {
                 try {
                     Thread.sleep(1000);
@@ -97,8 +101,8 @@ public class Game {
                     e.printStackTrace();
                 }
             }
-        }).start();
-        new Thread(() -> {
+        });
+        gameThread = new Thread(() -> {
             while (!isEnd) {
                 if (!shape.goDown()) {
                     shape.getShape()
@@ -115,8 +119,9 @@ public class Game {
                     e.printStackTrace();
                 }
             }
-            Thread.yield();
-        }).start();
+        });
+        gameThread.start();
+        countThread.start();
     }
 
     private void initShape() {
@@ -234,11 +239,25 @@ public class Game {
     }
 
     private void clearKeyBoard() {
-        gameScene.setOnKeyPressed(null);
+        gameScene.setOnKeyPressed(event -> {
+            if (event.getCode().getName().equals("Esc") && isSingle){
+                if (isPause){
+                    gameThread.resume();
+                    gameThread.resume();
+                    isPause = false;
+                    setKeyBoard();
+                }else{
+                    gameThread.suspend();
+                    countThread.suspend();
+                    isPause = true;
+                }
+            }
+        });
     }
 
     private void setKeyBoard() {
         gameScene.setOnKeyPressed(event -> {
+//            System.out.println(event.getCode().getName());
             String key = event.getText().toLowerCase();
             if (key.equals("a") || event.getCode().getName().equals("Left")) {
                 shape.goLeft();
@@ -259,6 +278,17 @@ public class Game {
             } else if (key.equals("d") || event.getCode().getName().equals("Right")) {
                 shape.goRight();
                 invalidate();
+            } else if (event.getCode().getName().equals("Esc") && isSingle) {
+                if (isPause){
+                    gameThread.resume();
+                    gameThread.resume();
+                    isPause = false;
+                }else{
+                    gameThread.suspend();
+                    countThread.suspend();
+                    isPause = true;
+                    clearKeyBoard();
+                }
             }
         });
     }
