@@ -88,12 +88,14 @@ public class Game {
 
     private void autoDown() {
         new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                time--;
-                upScore++;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            while (!isEnd) {
+                try {
+                    Thread.sleep(1000);
+                    time -= 2;
+                    score += 2;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }).start();
         new Thread(() -> {
@@ -296,6 +298,7 @@ public class Game {
         for (int i = 0; i < Config.y; i++) {
             if (map[i][0] == Config.CLEAR) {
                 score = score + upScore;
+                upScore += 1;
                 for (int j = i; j > 0; j--) {
                     for (int k = 0; k < Config.x; k++) {
                         map[j][k] = map[j - 1][k];
